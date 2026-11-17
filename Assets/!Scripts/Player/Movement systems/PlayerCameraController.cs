@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using FishNet.Object;
 
 [RequireComponent(typeof(Camera))]
-public class PlayerCameraController : MonoBehaviour
+public class PlayerCameraController : NetworkBehaviour
 {
     [SerializeField] private Transform playerTransform;
 
@@ -24,6 +25,12 @@ public class PlayerCameraController : MonoBehaviour
 	}
 
 	private void Start() => currRotationX = 0f;
+
+	public override void OnStartClient()
+	{
+		if (!IsOwner)
+			inputSystem.Disable();
+	}
 
 	private void Update()
 	{

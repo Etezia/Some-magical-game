@@ -1,9 +1,10 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using FishNet.Object;
 
 [RequireComponent(typeof(CharacterController))]
-public class MovementController : MonoBehaviour
+public class MovementController : NetworkBehaviour
 {
 	[SerializeField] private CharacterController charController;
 	[SerializeField] private CharacterMovementData movementData;
@@ -43,6 +44,12 @@ public class MovementController : MonoBehaviour
 
 		ApplyDefaultMovementValues();
 		SubscribeOnInputActions();
+	}
+
+	public override void OnStartClient()
+	{
+		if (!IsOwner)
+			inputSystem.Disable();
 	}
 
 	private void OnEnable()
