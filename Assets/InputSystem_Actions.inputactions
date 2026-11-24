@@ -140,6 +140,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "RotateCamera",
+                    "type": "Value",
+                    "id": "c713f36e-8501-462c-90a0-e5edfc09426b",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -351,27 +360,10 @@
                     "action": "DeselectHotbatSlot",
                     "isComposite": false,
                     "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "PlayerCamera",
-            "id": "bc50864b-a1e0-4d03-8c1c-1f1d91fca294",
-            "actions": [
-                {
-                    "name": "RotateCamera",
-                    "type": "Value",
-                    "id": "f21b3660-23ea-47cf-8342-d96ab71c8437",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                }
-            ],
-            "bindings": [
+                },
                 {
                     "name": "",
-                    "id": "15858747-653a-4a8e-b777-95ee0ade52fb",
+                    "id": "742b2868-cf76-4ddc-be05-c85c412962e7",
                     "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",

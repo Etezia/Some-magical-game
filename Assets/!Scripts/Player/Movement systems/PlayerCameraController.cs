@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using FishNet.Component.Transforming;
 using FishNet.Object;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Camera))]
+[RequireComponent(typeof(NetworkTransform))]
 public class PlayerCameraController : NetworkBehaviour
 {
     [SerializeField] private Transform playerTransform;
@@ -14,12 +15,17 @@ public class PlayerCameraController : NetworkBehaviour
 
 	private float currRotationX = 0f;
 
-	[SerializeField] private InputActionAsset inputSystem;
+	[SerializeField] private GameObject playerCamera;
+
+	[SerializeField] private PlayerInput inputSystem;
 	private InputAction rotateCameraAction;
 
 	private void Awake()
 	{
-		rotateCameraAction = inputSystem.FindAction("RotateCamera");
+		CheckForComponentReferences();
+
+		rotateCameraAction = inputSystem.actions.FindAction("RotateCamera");
+
 		Cursor.lockState = CursorLockMode.Locked;
 		Cursor.visible = false;
 	}
@@ -28,12 +34,15 @@ public class PlayerCameraController : NetworkBehaviour
 
 	public override void OnStartClient()
 	{
-		if (!IsOwner)
-			inputSystem.Disable();
+		if (IsOwner)
+			playerCamera.SetActive(true);
 	}
 
 	private void Update()
 	{
+		if (!IsOwner)
+			return;
+
 		var inputMouseVector = rotateCameraAction.ReadValue<Vector2>();
 
 		currRotationX -= inputMouseVector.y * xRotationSpeed;
@@ -41,5 +50,17 @@ public class PlayerCameraController : NetworkBehaviour
 		transform.localRotation = Quaternion.Euler(currRotationX, 0f, 0f);
 
 		playerTransform.Rotate(0f, inputMouseVector.x * yRotationSpeed, 0f);
+
+		Debug.Log(inputMouseVector);
+	}
+
+	private void CheckForComponentReferences()
+	{
+		if (playerTransform == null)
+			Debug.Log("Playr transform is null");
+		if (inputSystem == null)
+			Debug.Log("Input system is null");
+		if (playerCamera == null)
+			Debug.Log("Player camera is null");
 	}
 }

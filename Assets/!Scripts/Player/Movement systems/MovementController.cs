@@ -2,8 +2,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using FishNet.Object;
+using FishNet.Component.Transforming;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterController), typeof(NetworkTransform), typeof(PlayerInput))]
 public class MovementController : NetworkBehaviour
 {
 	[SerializeField] private CharacterController charController;
@@ -23,7 +24,7 @@ public class MovementController : NetworkBehaviour
 
 	private ControllerColliderHit lastControllerHit;
 
-    [SerializeField] private InputActionAsset inputSystem;
+    private PlayerInput inputSystem;
     private InputAction moveAction;
     private InputAction runAction;
     private InputAction crouchAction;
@@ -34,13 +35,16 @@ public class MovementController : NetworkBehaviour
 	private void Awake()
 	{
 		charController = GetComponent<CharacterController>();
+		inputSystem = GetComponent<PlayerInput>();
 
 		normalCharacterHeight = charController.height;
 
-		moveAction = inputSystem.FindAction("Move");
-		runAction = inputSystem.FindAction("Run");
-		crouchAction = inputSystem.FindAction("Crouch");
-		jumpAction = inputSystem.FindAction("Jump");
+		moveAction = inputSystem.actions.FindAction("Move");
+		runAction = inputSystem.actions.FindAction("Run");
+		crouchAction = inputSystem.actions.FindAction("Crouch");
+		jumpAction = inputSystem.actions.FindAction("Jump");
+
+		CheckForComponentReferences();
 
 		ApplyDefaultMovementValues();
 		SubscribeOnInputActions();
@@ -48,28 +52,30 @@ public class MovementController : NetworkBehaviour
 
 	public override void OnStartClient()
 	{
-		if (!IsOwner)
-			inputSystem.Disable();
+		inputSystem.enabled = IsOwner;
 	}
 
 	private void OnEnable()
 	{
-		moveAction?.Enable();
-		runAction?.Enable();
-		crouchAction?.Enable();
-		jumpAction?.Enable();
+		//moveAction?.Enable();
+		//runAction?.Enable();
+		//crouchAction?.Enable();
+		//jumpAction?.Enable();
 	}
 
 	private void OnDisable()
 	{
-		moveAction?.Disable();
-		runAction?.Disable();
-		crouchAction?.Disable();
-		jumpAction?.Disable();
+		//moveAction?.Disable();
+		//runAction?.Disable();
+		//crouchAction?.Disable();
+		//jumpAction?.Disable();
 	}
 
 	private void Update()
 	{
+		if (!IsOwner)
+			return;
+
 		ApplyGravityForce();
 		var inputMoveVector = moveAction.ReadValue<Vector2>();
 		var initialVelocity = currVelocity;
@@ -193,5 +199,17 @@ public class MovementController : NetworkBehaviour
 			SwitchToWalk(context);
 		else
 			SwitchToCrouch(context);
+	}
+
+	private void CheckForComponentReferences()
+	{
+		if (moveAction == null)
+			Debug.Log("No input action for move");
+		if (runAction == null)
+			Debug.Log("No input action for run");
+		if (crouchAction == null)
+			Debug.Log("No input action for crouch");
+		if (jumpAction == null)
+			Debug.Log("No input action for jump");
 	}
 }

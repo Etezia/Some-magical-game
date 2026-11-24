@@ -226,6 +226,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateCamera"",
+                    ""type"": ""Value"",
+                    ""id"": ""c713f36e-8501-462c-90a0-e5edfc09426b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -437,27 +446,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""DeselectHotbatSlot"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""PlayerCamera"",
-            ""id"": ""bc50864b-a1e0-4d03-8c1c-1f1d91fca294"",
-            ""actions"": [
-                {
-                    ""name"": ""RotateCamera"",
-                    ""type"": ""Value"",
-                    ""id"": ""f21b3660-23ea-47cf-8342-d96ab71c8437"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                }
-            ],
-            ""bindings"": [
+                },
                 {
                     ""name"": """",
-                    ""id"": ""15858747-653a-4a8e-b777-95ee0ade52fb"",
+                    ""id"": ""742b2868-cf76-4ddc-be05-c85c412962e7"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -597,9 +589,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_SelectHotbarSlot7 = m_Player.FindAction("SelectHotbarSlot7", throwIfNotFound: true);
         m_Player_SelectHotbarSlot8 = m_Player.FindAction("SelectHotbarSlot8", throwIfNotFound: true);
         m_Player_DeselectHotbatSlot = m_Player.FindAction("DeselectHotbatSlot", throwIfNotFound: true);
-        // PlayerCamera
-        m_PlayerCamera = asset.FindActionMap("PlayerCamera", throwIfNotFound: true);
-        m_PlayerCamera_RotateCamera = m_PlayerCamera.FindAction("RotateCamera", throwIfNotFound: true);
+        m_Player_RotateCamera = m_Player.FindAction("RotateCamera", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Pause = m_UI.FindAction("Pause", throwIfNotFound: true);
@@ -609,7 +599,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     ~@InputSystem_Actions()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Player.Disable() has not been called.");
-        UnityEngine.Debug.Assert(!m_PlayerCamera.enabled, "This will cause a leak and performance issues, InputSystem_Actions.PlayerCamera.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputSystem_Actions.UI.Disable() has not been called.");
     }
 
@@ -701,6 +690,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_SelectHotbarSlot7;
     private readonly InputAction m_Player_SelectHotbarSlot8;
     private readonly InputAction m_Player_DeselectHotbatSlot;
+    private readonly InputAction m_Player_RotateCamera;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -773,6 +763,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @DeselectHotbatSlot => m_Wrapper.m_Player_DeselectHotbatSlot;
         /// <summary>
+        /// Provides access to the underlying input action "Player/RotateCamera".
+        /// </summary>
+        public InputAction @RotateCamera => m_Wrapper.m_Player_RotateCamera;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -843,6 +837,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @DeselectHotbatSlot.started += instance.OnDeselectHotbatSlot;
             @DeselectHotbatSlot.performed += instance.OnDeselectHotbatSlot;
             @DeselectHotbatSlot.canceled += instance.OnDeselectHotbatSlot;
+            @RotateCamera.started += instance.OnRotateCamera;
+            @RotateCamera.performed += instance.OnRotateCamera;
+            @RotateCamera.canceled += instance.OnRotateCamera;
         }
 
         /// <summary>
@@ -899,6 +896,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @DeselectHotbatSlot.started -= instance.OnDeselectHotbatSlot;
             @DeselectHotbatSlot.performed -= instance.OnDeselectHotbatSlot;
             @DeselectHotbatSlot.canceled -= instance.OnDeselectHotbatSlot;
+            @RotateCamera.started -= instance.OnRotateCamera;
+            @RotateCamera.performed -= instance.OnRotateCamera;
+            @RotateCamera.canceled -= instance.OnRotateCamera;
         }
 
         /// <summary>
@@ -932,102 +932,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PlayerActions" /> instance referencing this action map.
     /// </summary>
     public PlayerActions @Player => new PlayerActions(this);
-
-    // PlayerCamera
-    private readonly InputActionMap m_PlayerCamera;
-    private List<IPlayerCameraActions> m_PlayerCameraActionsCallbackInterfaces = new List<IPlayerCameraActions>();
-    private readonly InputAction m_PlayerCamera_RotateCamera;
-    /// <summary>
-    /// Provides access to input actions defined in input action map "PlayerCamera".
-    /// </summary>
-    public struct PlayerCameraActions
-    {
-        private @InputSystem_Actions m_Wrapper;
-
-        /// <summary>
-        /// Construct a new instance of the input action map wrapper class.
-        /// </summary>
-        public PlayerCameraActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
-        /// <summary>
-        /// Provides access to the underlying input action "PlayerCamera/RotateCamera".
-        /// </summary>
-        public InputAction @RotateCamera => m_Wrapper.m_PlayerCamera_RotateCamera;
-        /// <summary>
-        /// Provides access to the underlying input action map instance.
-        /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_PlayerCamera; }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
-        public void Enable() { Get().Enable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
-        public void Disable() { Get().Disable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
-        public bool enabled => Get().enabled;
-        /// <summary>
-        /// Implicitly converts an <see ref="PlayerCameraActions" /> to an <see ref="InputActionMap" /> instance.
-        /// </summary>
-        public static implicit operator InputActionMap(PlayerCameraActions set) { return set.Get(); }
-        /// <summary>
-        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <param name="instance">Callback instance.</param>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
-        /// </remarks>
-        /// <seealso cref="PlayerCameraActions" />
-        public void AddCallbacks(IPlayerCameraActions instance)
-        {
-            if (instance == null || m_Wrapper.m_PlayerCameraActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_PlayerCameraActionsCallbackInterfaces.Add(instance);
-            @RotateCamera.started += instance.OnRotateCamera;
-            @RotateCamera.performed += instance.OnRotateCamera;
-            @RotateCamera.canceled += instance.OnRotateCamera;
-        }
-
-        /// <summary>
-        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <remarks>
-        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
-        /// </remarks>
-        /// <seealso cref="PlayerCameraActions" />
-        private void UnregisterCallbacks(IPlayerCameraActions instance)
-        {
-            @RotateCamera.started -= instance.OnRotateCamera;
-            @RotateCamera.performed -= instance.OnRotateCamera;
-            @RotateCamera.canceled -= instance.OnRotateCamera;
-        }
-
-        /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="PlayerCameraActions.UnregisterCallbacks(IPlayerCameraActions)" />.
-        /// </summary>
-        /// <seealso cref="PlayerCameraActions.UnregisterCallbacks(IPlayerCameraActions)" />
-        public void RemoveCallbacks(IPlayerCameraActions instance)
-        {
-            if (m_Wrapper.m_PlayerCameraActionsCallbackInterfaces.Remove(instance))
-                UnregisterCallbacks(instance);
-        }
-
-        /// <summary>
-        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
-        /// </remarks>
-        /// <seealso cref="PlayerCameraActions.AddCallbacks(IPlayerCameraActions)" />
-        /// <seealso cref="PlayerCameraActions.RemoveCallbacks(IPlayerCameraActions)" />
-        /// <seealso cref="PlayerCameraActions.UnregisterCallbacks(IPlayerCameraActions)" />
-        public void SetCallbacks(IPlayerCameraActions instance)
-        {
-            foreach (var item in m_Wrapper.m_PlayerCameraActionsCallbackInterfaces)
-                UnregisterCallbacks(item);
-            m_Wrapper.m_PlayerCameraActionsCallbackInterfaces.Clear();
-            AddCallbacks(instance);
-        }
-    }
-    /// <summary>
-    /// Provides a new <see cref="PlayerCameraActions" /> instance referencing this action map.
-    /// </summary>
-    public PlayerCameraActions @PlayerCamera => new PlayerCameraActions(this);
 
     // UI
     private readonly InputActionMap m_UI;
@@ -1312,14 +1216,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDeselectHotbatSlot(InputAction.CallbackContext context);
-    }
-    /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "PlayerCamera" which allows adding and removing callbacks.
-    /// </summary>
-    /// <seealso cref="PlayerCameraActions.AddCallbacks(IPlayerCameraActions)" />
-    /// <seealso cref="PlayerCameraActions.RemoveCallbacks(IPlayerCameraActions)" />
-    public interface IPlayerCameraActions
-    {
         /// <summary>
         /// Method invoked when associated input action "RotateCamera" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
