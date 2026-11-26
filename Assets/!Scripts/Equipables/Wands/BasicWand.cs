@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class BasicWand : Wand
 {
+	[SerializeField] private WandData wandData;
 	[SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private Projectile projectile;
 
