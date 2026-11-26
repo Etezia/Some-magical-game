@@ -34,6 +34,8 @@ public class PlayerCameraController : NetworkBehaviour
 
 	public override void OnStartClient()
 	{
+		base.OnStartClient();
+
 		if (IsOwner)
 			playerCamera.SetActive(true);
 	}

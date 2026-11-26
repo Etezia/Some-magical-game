@@ -7,28 +7,49 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkObject), typeof(NetworkTransform), typeof(Rigidbody))]
 public class Projectile : NetworkBehaviour
 {
-	[SerializeField] private float lifetime;
+	[SerializeField] private float damage = 40f;
+	[SerializeField] private float lifetime = 10f;
+
+	private NetworkTransform networkTransform;
 
     public Rigidbody RB { get; private set; }
 
-	public Action ObjectDestroyed;
+	public event Action ObjectDestroyed;
 
 	private void Awake()
 	{
+		networkTransform = GetComponent<NetworkTransform>();
 		RB = GetComponent<Rigidbody>();
 	}
 
-	private void OnTriggerEnter(Collider other)
+	private void Reset()
 	{
+		damage = 40f;
+		lifetime = 10f;
+	}
 
-		ObjectDestroyed?.Invoke();
-		ServerManager.Despawn(this.NetworkObject);
+	public override void OnStartServer()
+	{
+		base.OnStartServer();
+
+		StartCoroutine(DestroyOnLifetimeEnded());
+	}
+
+	[Server]
+	private void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.TryGetComponent<EntityHealth>(out var entityHealth))
+		{
+			entityHealth.GetDamage(damage);
+			ObjectDestroyed?.Invoke();
+			Despawn();
+		}
 	}
 
 	private IEnumerator DestroyOnLifetimeEnded()
 	{
 		yield return new WaitForSeconds(lifetime);
 
-		ServerManager.Despawn(gameObject);
+		Despawn();
 	}
 }

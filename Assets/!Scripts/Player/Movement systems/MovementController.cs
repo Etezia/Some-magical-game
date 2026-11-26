@@ -52,6 +52,8 @@ public class MovementController : NetworkBehaviour
 
 	public override void OnStartClient()
 	{
+		base.OnStartClient();
+
 		inputSystem.enabled = IsOwner;
 	}
 

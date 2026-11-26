@@ -264,4 +264,4 @@ MonoBehaviour:
   _componentIndexCache: 1
   _addedNetworkObject: {fileID: 2769957204722081173}
   _networkObjectCache: {fileID: 2769957204722081173}
-  lifetime: 0
+  lifetime: 10

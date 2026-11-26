@@ -22,6 +22,8 @@ public class EquipmentManager : NetworkBehaviour
 
 	public override void OnStartClient()
 	{
+		base.OnStartClient();
+
 		if (IsOwner)
 			enabled = true;
 	}
