@@ -61,6 +61,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "SecondaryAttack",
+                    "type": "Button",
+                    "id": "4d1ecf7b-d8a0-4a12-8685-e0dc79acf961",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "SelectHotbarSlot1",
                     "type": "Button",
                     "id": "8fc679a8-1155-4574-ab5e-fcb4f4244816",
@@ -259,6 +268,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f9206904-c94f-4fd6-bf65-b890ab5fb787",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SecondaryAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -50,8 +50,6 @@ public class PlayerCameraController : NetworkBehaviour
 		transform.localRotation = Quaternion.Euler(currRotationX, 0f, 0f);
 
 		playerTransform.Rotate(0f, inputMouseVector.x * yRotationSpeed, 0f);
-
-		Debug.Log(inputMouseVector);
 	}
 
 	private void CheckForComponentReferences()
