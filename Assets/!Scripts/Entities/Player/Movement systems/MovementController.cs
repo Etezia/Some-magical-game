@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using FishNet.Object;
 using FishNet.Component.Transforming;
+using FishNet.Connection;
 
 [RequireComponent(typeof(CharacterController), typeof(NetworkTransform), typeof(PlayerInput))]
 public class MovementController : NetworkBehaviour
@@ -214,4 +215,47 @@ public class MovementController : NetworkBehaviour
 		if (jumpAction == null)
 			Debug.Log("No input action for jump");
 	}
+
+
+    /// <summary>
+    /// Восстанавливает положение персонажа при загрузке сохранения.
+    /// Вызывается сервером.
+    /// </summary>
+    public bool RestoreTransformFromSave(Vector3 position, Quaternion rotation)
+    {
+        if (!IsServerInitialized)
+            return false;
+
+        if (IsOwner || !Owner.IsValid)
+        {
+            ApplyRestoredTransform(position, rotation);
+            return true;
+        }
+
+        TargetRestoreTransform(Owner, position, rotation);
+        return true;
+    }
+
+    [TargetRpc]
+    private void TargetRestoreTransform(
+        NetworkConnection connection,
+        Vector3 position,
+        Quaternion rotation)
+    {
+        ApplyRestoredTransform(position, rotation);
+    }
+
+    private void ApplyRestoredTransform(Vector3 position, Quaternion rotation)
+    {
+        currVelocity = Vector3.zero;
+        currVerticalSpeed = 0f;
+        lastControllerHit = null;
+
+        bool wasControllerEnabled = charController.enabled;
+        charController.enabled = false;
+
+        transform.SetPositionAndRotation(position, rotation);
+
+        charController.enabled = wasControllerEnabled;
+    }
 }

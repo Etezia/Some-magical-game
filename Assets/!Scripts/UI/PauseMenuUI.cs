@@ -1,42 +1,82 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using UnityEngine.UI;
 
 public class PauseMenuUI : MonoBehaviour
 {
-	[SerializeField] private GameObject pauseMenuObjs;
-	[SerializeField] private GameObject gameUI;
-	[SerializeField] private Button pauseButton;
-	[SerializeField] private Button closePauseMenuButton;
+    [Header("UI Elements")]
+    [SerializeField] private GameObject pauseMenuObjs;
+    [SerializeField] private GameObject gameUI;
 
-	[SerializeField] private PauseMenu pauseMenuManager;
+    [Header("Buttons")]
+    [SerializeField] private Button resumeButton;
+    [SerializeField] private Button saveButton;
+    [SerializeField] private Button loadButton;
 
-	private void Awake()
-	{
-		pauseButton.onClick.AddListener(pauseMenuManager.Pause);
-		closePauseMenuButton.onClick.AddListener(pauseMenuManager.Resume);
-	}
+    [Header("Managers")]
+    [SerializeField] private PauseMenu pauseMenuManager;
+    [SerializeField] private SaveManager saveManager;
 
-	private void OnEnable()
-	{
-		pauseMenuManager.OnPause += OnPause;
-		pauseMenuManager.OnResume += OnResume;
-	}
+    private void Awake()
+    {
+        pauseMenuObjs.SetActive(false);
 
-	private void OnDisable()
-	{
-		pauseMenuManager.OnPause -= OnPause;
-		pauseMenuManager.OnResume -= OnResume;
-	}
+        resumeButton.onClick.AddListener(
+            pauseMenuManager.Resume);
 
-	private void OnPause()
-	{
-		pauseMenuObjs.SetActive(true);
-		gameUI.SetActive(false);
-	}
+        saveButton.onClick.AddListener(
+            SaveGame);
 
-	private void OnResume()
-	{
-		pauseMenuObjs.SetActive(false);
-		gameUI.SetActive(true);
-	}
+        loadButton.onClick.AddListener(
+            LoadGame);
+    }
+
+    private void OnEnable()
+    {
+        pauseMenuManager.OnPause += OnPause;
+        pauseMenuManager.OnResume += OnResume;
+    }
+
+    private void OnDisable()
+    {
+        pauseMenuManager.OnPause -= OnPause;
+        pauseMenuManager.OnResume -= OnResume;
+    }
+
+    private void OnDestroy()
+    {
+        resumeButton.onClick.RemoveListener(
+            pauseMenuManager.Resume);
+
+        saveButton.onClick.RemoveListener(SaveGame);
+        loadButton.onClick.RemoveListener(LoadGame);
+    }
+
+    private void OnPause()
+    {
+        pauseMenuObjs.SetActive(true);
+
+        if (gameUI != null)
+            gameUI.SetActive(false);
+    }
+
+    private void OnResume()
+    {
+        pauseMenuObjs.SetActive(false);
+
+        if (gameUI != null)
+            gameUI.SetActive(true);
+    }
+
+    private void SaveGame()
+    {
+        if (saveManager != null)
+            saveManager.SaveGame();
+    }
+
+    private void LoadGame()
+    {
+        if (saveManager != null)
+            saveManager.LoadGame();
+    }
 }

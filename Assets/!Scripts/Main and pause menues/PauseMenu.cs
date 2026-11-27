@@ -1,62 +1,113 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    [SerializeField] private bool isOnPause = false;
+    private bool isOnPause;
 
-    [SerializeField] private string sceneForLoadingPause;
+    private readonly List<InputAction> disabledActions = new();
 
-    [SerializeField] private InputActionAsset inputSystem;
-    private InputAction pauseButtonPerforming;
+    private CursorLockMode previousCursorLockState;
+    private bool previousCursorVisible;
 
     public event Action OnPause;
     public event Action OnResume;
 
-    private void Awake()
+    public void TogglePause()
     {
-        pauseButtonPerforming = inputSystem.FindAction("Switch Pause");
-        Time.timeScale = 1.0f;
-    }
-
-    private void OnEnable()
-    {
-		pauseButtonPerforming.performed += ChangeGameState;
-		pauseButtonPerforming.Enable();
-	}
-
-	private void OnDisable()
-    {
-        pauseButtonPerforming.performed -= ChangeGameState;
-		pauseButtonPerforming.Disable();
-	}
-
-    private void ChangeGameState(InputAction.CallbackContext context)
-    {
-        print("callback");
         if (isOnPause)
             Resume();
         else
             Pause();
     }
 
-	public void Resume()
+    public void Pause()
     {
-		Time.timeScale = 1f;
-		isOnPause = false;
+        if (isOnPause)
+            return;
+
+        isOnPause = true;
+
+        previousCursorLockState = Cursor.lockState;
+        previousCursorVisible = Cursor.visible;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        SetPlayerInputEnabled(false);
+
+        OnPause?.Invoke();
+    }
+
+    public void Resume()
+    {
+        if (!isOnPause)
+            return;
+
+        isOnPause = false;
+
+        SetPlayerInputEnabled(true);
+
+        Cursor.lockState = previousCursorLockState;
+        Cursor.visible = previousCursorVisible;
+
         OnResume?.Invoke();
-	}
+    }
 
-	public void Pause()
-	{
-		Time.timeScale = 0f;
-		isOnPause = true;
-		OnPause?.Invoke();
-	}
+    private void SetPlayerInputEnabled(bool enabled)
+    {
+        if (!enabled)
+        {
+            var players = FindObjectsByType<MovementController>(
+                FindObjectsSortMode.None);
 
-	public void GoToMainMenu() => SceneManager.LoadScene(sceneForLoadingPause);
+            foreach (var player in players)
+            {
+                if (!player.IsOwner)
+                    continue;
+
+                var playerInput = player.GetComponent<PlayerInput>();
+
+                if (playerInput == null)
+                    continue;
+
+                foreach (var actionMap in playerInput.actions.actionMaps)
+                {
+                    foreach (var action in actionMap.actions)
+                    {
+                        // ESC должен продолжать работать,
+                        // чтобы можно было закрыть меню.
+                        if (action.name == "Switch Pause")
+                            continue;
+
+                        if (!action.enabled)
+                            continue;
+
+                        disabledActions.Add(action);
+                        action.Disable();
+                    }
+                }
+
+                break;
+            }
+        }
+        else
+        {
+            foreach (var action in disabledActions)
+            {
+                if (action != null)
+                    action.Enable();
+            }
+
+            disabledActions.Clear();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (isOnPause)
+            Resume();
+    }
 }
