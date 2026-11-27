@@ -37,14 +37,14 @@ public class PlayerCameraController : NetworkBehaviour
 		base.OnStartClient();
 
 		if (IsOwner)
+		{
 			playerCamera.SetActive(true);
+			enabled = true;
+		}
 	}
 
 	private void Update()
 	{
-		if (!IsOwner)
-			return;
-
 		var inputMouseVector = rotateCameraAction.ReadValue<Vector2>();
 
 		currRotationX -= inputMouseVector.y * xRotationSpeed;

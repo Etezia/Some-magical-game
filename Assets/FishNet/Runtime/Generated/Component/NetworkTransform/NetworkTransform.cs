@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 #define DEVELOPMENT
 #endif
 using FishNet.Connection;
@@ -676,7 +676,7 @@ namespace FishNet.Component.Transforming
         private void Awake()
         {
             _interval = Math.Max(_interval, (byte)1);
-            }
+        }
 
         private void OnDestroy()
         {
